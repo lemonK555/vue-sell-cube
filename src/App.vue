@@ -16,9 +16,14 @@ export default {
     }
   },
   created() {
-    getSeller().then((seller) => {
-      this.seller = seller
-    })
+    this._getSeller()
+  },
+  methods: {
+    _getSeller() {
+      getSeller().then((seller) => {
+        this.seller = seller
+      })
+    }
   },
   components: {
     VHeader
