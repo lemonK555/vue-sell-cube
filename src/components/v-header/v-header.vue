@@ -1,5 +1,5 @@
 <template>
-  <div class="header">
+  <div class="header" @click="showDetail">
     <div class="content-wrapper">
       <div class="avatar">
         <img :src="seller.avatar" width="64" height="64">
@@ -46,14 +46,22 @@ export default {
     }
   },
   data () {
-    return {
-    }
+    return {}
   },
   created () {
     this.classMap = ['decrease', 'discount', 'guarantee', 'invoice', 'special']
   },
-  components: { SupportIco },
-  methods: {}
+  methods: {
+    showDetail() {
+      this.headerDetailComp = this.headerDetailComp || this.$createHeaderDetail({
+        $props: {
+          seller: 'seller'
+        }
+      })
+      this.headerDetailComp.show()
+    }
+  },
+  components: { SupportIco }
 }
 
 </script>
