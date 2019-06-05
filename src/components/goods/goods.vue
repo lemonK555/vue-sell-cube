@@ -7,7 +7,7 @@
         :options="scrollOptions"
         v-if="goods.length"
       >
-        <!-- <template slot="bar" slot-scope="props">
+        <template slot="bar" slot-scope="props">
           <cube-scroll-nav-bar
             direction="vertical"
             :labels="props.labels"
@@ -28,7 +28,7 @@
               </div>
             </template>
           </cube-scroll-nav-bar>
-        </template> -->
+        </template>
         <cube-scroll-nav-panel
           v-for="good in goods"
           :key="good.name"
@@ -77,8 +77,9 @@
 <script>
 import { getGoods } from 'api'
 import ShopCart from 'components/shop-cart/shop-cart'
-// import Bubble from 'components/bubble/bubble'
+import Bubble from 'components/bubble/bubble'
 import CartControl from 'components/cart-control/cart-control'
+import SupportIco from 'components/support-ico/support-ico'
 export default {
   name: 'goods',
   props: {
@@ -112,6 +113,22 @@ export default {
         })
       })
       return ret
+    },
+    barTxts() {
+      let ret = []
+      this.goods.forEach((good) => {
+        const { type, name, foods } = good
+        let count = 0
+        foods.forEach((food) => {
+          count += food.count || 0
+        })
+        ret.push({
+          type,
+          name,
+          count
+        })
+      })
+      return ret
     }
   },
   methods: {
@@ -125,7 +142,7 @@ export default {
     }
   },
   components: {
-    ShopCart, CartControl
+    ShopCart, CartControl, Bubble, SupportIco
   }
 }
 </script>
