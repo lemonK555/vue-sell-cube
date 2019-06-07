@@ -25,8 +25,16 @@ export default {
     selectFoods: Array,
     deliveryPrice: Number,
     minPrice: Number,
-    fold: Boolean || true,
-    list: Object || {}
+    fold: {
+      type: Boolean,
+      default: false
+    },
+    list: {
+      type: Object,
+      default() {
+        return {}
+      }
+    }
   },
   methods: {
     show() {
@@ -34,6 +42,9 @@ export default {
     },
     hide() {
       this.visible = false
+    },
+    drop(el) {
+      this.$refs.shopCart.drop(el)
     }
   },
   components: {
