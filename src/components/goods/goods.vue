@@ -93,6 +93,7 @@ export default {
   data () {
     return {
       goods: [],
+      selectedFood: {},
       scrollOptions: {
         click: false,
         directionLockThreshold: 0
@@ -132,8 +133,13 @@ export default {
     }
   },
   methods: {
+    selectFood(food) {
+      this.selectedFood = food
+      this._showFood()
+      this._showShopCartSticky()
+    },
     fetch() {
-      if(!this.fetched){
+      if (!this.fetched) {
         this.fetched = true
         getGoods().then((goods) => {
           this.goods = goods
@@ -142,6 +148,36 @@ export default {
     },
     onAdd(el) {
       this.$refs.shopCart.drop(el)
+    },
+    _showFood() {
+      this.foodComp = this.foodComp || this.$createFood({
+        $props: {
+          food: 'selectedFood'
+        },
+        $events: {
+          leave: () => {
+            this._hideShopCartList()
+          },
+          add: (el) => {
+            this.shopCartStickyComp.drop(el)
+          }
+        }
+      })
+      this.foodComp.show()
+    },
+    _showShopCartSticky() {
+      this.shopCartStickyComp = this.shopCartStickyComp || this.$createShopCartSticky({
+        $props: {
+          selectFoods: 'selectFoods',
+          deliveryPrice: this.seller.deliveryPrice,
+          minPrice: this.seller.minPrice,
+          fold: true
+        }
+      })
+      this.shopCartStickyComp.show()
+    },
+    _hideShopCartList() {
+      this.shopCartStickyComp.hide()
     }
   },
   components: {
