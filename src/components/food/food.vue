@@ -4,7 +4,7 @@
     @after-leave="afterLeave"
   >
     <div class="food" v-show="visible">
-      <cube-scroll ref="scroll">
+      <cube-scroll :data="computedRatings" ref="scroll">
         <div class="food-content">
           <div class="image-header">
             <img :src="food.image">
@@ -56,7 +56,7 @@
                     <span class="name">{{rating.username}}</span>
                     <img :src="rating.avatar" width="12" height="12" class="avatar">
                   </div>
-                  <div class="tim">{{format(rating.rateTime)}}</div>
+                  <div class="time">{{format(rating.rateTime)}}</div>
                   <p class="text">
                     <span :class="{'icon-thumb_up':rating.rateType===0,'icon-thumb_down':rating.rateType===1}"></span>{{rating.text}}
                   </p>
@@ -76,24 +76,22 @@ import popupMixin from 'common/mixins/popup'
 import Split from 'components/split/split'
 import CartControl from 'components/cart-control/cart-control'
 import RatingSelect from 'components/rating-select/rating-select'
+
+import ratingMixin from 'common/mixins/rating'
 import moment from 'moment'
 
 const EVENT_SHOW = 'show'
 const EVENT_LEAVE = 'leave'
 const EVENT_ADD = 'add'
 
-const ALL = 2
-
 export default {
-  mixins: [popupMixin],
+  mixins: [popupMixin, ratingMixin],
   name: 'food',
   props: {
     food: Object
   },
   data() {
     return {
-      onlyContent: true,
-      selectType: ALL,
       desc: {
         all: '全部',
         positive: '推荐',
@@ -111,18 +109,6 @@ export default {
   computed: {
     ratings() {
       return this.food.ratings
-    },
-    computedRatings() {
-      let ret = []
-      this.ratings.forEach((rating) => {
-        if (this.onlyContent && !rating.text) {
-          return
-        }
-        if (this.selectType === ALL || this.selectType === rating.rateType) {
-          ret.push(rating)
-        }
-      })
-      return ret
     }
   },
   methods: {
@@ -138,12 +124,6 @@ export default {
     },
     format(time) {
       return moment(time).format('YYYY-MM-DD hh:mm')
-    },
-    onSelect(type) {
-      this.selectType = type
-    },
-    onToggle() {
-      this.onlyContent = !this.onlyContent
     }
   },
   components: {
