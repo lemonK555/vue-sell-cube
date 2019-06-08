@@ -26,7 +26,7 @@
               <cart-control @add="addFood" :food="food"></cart-control>
             </div>
             <transition name="fade">
-              <div @click.stop="addFirst" class="buy" v-show="!food.count">加入购物车</div>
+              <div @click="addFirst" class="buy" v-show="!food.count">加入购物车</div>
             </transition>
           </div>
           <split v-show="food.info"></split>
@@ -35,6 +35,36 @@
             <p class="text">{{food.info}}</p>
           </div>
           <split></split>
+          <div class="rating">
+            <h1 class="title">商品评价</h1>
+            <rating-select
+              :ratings="ratings"
+              :onlyContent="onlyContent"
+              :selectType="selectType"
+              :desc="desc"
+              @select="onSelect"
+              @toggle="onToggle"
+            ></rating-select>
+            <div class="rating-wrapper">
+              <ul v-show="computedRatings && computedRatings.length">
+                <li
+                  v-for="(rating,index) in computedRatings"
+                  :key="index"
+                  class="rating-item border-bottom-1px"
+                >
+                  <div class="user">
+                    <span class="name">{{rating.username}}</span>
+                    <img :src="rating.avatar" width="12" height="12" class="avatar">
+                  </div>
+                  <div class="tim">{{format(rating.rateTime)}}</div>
+                  <p class="text">
+                    <span :class="{'icon-thumb_up':rating.rateType===0,'icon-thumb_down':rating.rateType===1}"></span>{{rating.text}}
+                  </p>
+                </li>
+              </ul>
+              <div class="no-rating" v-show="!computedRatings || !computedRatings.length">暂无评价</div>
+            </div>
+          </div>
         </div>
       </cube-scroll>
     </div>
@@ -45,10 +75,14 @@
 import popupMixin from 'common/mixins/popup'
 import Split from 'components/split/split'
 import CartControl from 'components/cart-control/cart-control'
+import RatingSelect from 'components/rating-select/rating-select'
+import moment from 'moment'
 
 const EVENT_SHOW = 'show'
 const EVENT_LEAVE = 'leave'
 const EVENT_ADD = 'add'
+
+const ALL = 2
 
 export default {
   mixins: [popupMixin],
@@ -56,12 +90,40 @@ export default {
   props: {
     food: Object
   },
+  data() {
+    return {
+      onlyContent: true,
+      selectType: ALL,
+      desc: {
+        all: '全部',
+        positive: '推荐',
+        negative: '吐槽'
+      }
+    }
+  },
   created() {
     this.$on(EVENT_SHOW, () => {
       this.$nextTick(() => {
         this.$refs.scroll.refresh()
       })
     })
+  },
+  computed: {
+    ratings() {
+      return this.food.ratings
+    },
+    computedRatings() {
+      let ret = []
+      this.ratings.forEach((rating) => {
+        if (this.onlyContent && !rating.text) {
+          return
+        }
+        if (this.selectType === ALL || this.selectType === rating.rateType) {
+          ret.push(rating)
+        }
+      })
+      return ret
+    }
   },
   methods: {
     afterLeave() {
@@ -73,10 +135,19 @@ export default {
     },
     addFood(target) {
       this.$emit(EVENT_ADD, target)
+    },
+    format(time) {
+      return moment(time).format('YYYY-MM-DD hh:mm')
+    },
+    onSelect(type) {
+      this.selectType = type
+    },
+    onToggle() {
+      this.onlyContent = !this.onlyContent
     }
   },
   components: {
-    Split, CartControl
+    Split, CartControl, RatingSelect
   }
 }
 </script>
